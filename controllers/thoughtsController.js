@@ -69,30 +69,34 @@ const thoughtsController = {
           });
       },
 
-    deleteThought(req, res) {
+      deleteThought(req, res) {
         Thought.findByIdAndDelete(req.params.id)
           .then((dbThought) => {
             if (!dbThought) {
               return res.status(404).json({ message: 'Thought not found with this id' });
             }
+            console.log('Deleted Thought:', dbThought);
+      
             return User.findByIdAndUpdate(
-                dbThought.userId,
-                { $pull: { thoughts: req.params.id } },
-                { new: true }
-              );
-            })
-            .then((dbUser) => {
-              if (!dbUser) {
-                return res.status(404).json({ message: 'User not found' });
-              }
-              res.json({ message: 'Thought deleted' });
-            })
+              dbThought.userId,
+              { $pull: { thoughts: req.params.id } },
+              { new: true }
+            );
+          })
+          .then((dbUser) => {
+            if (!dbUser) {
+              return res.status(404).json({ message: 'Thought deleted' });
+            }
+            console.log('Updated User:', dbUser);
+      
+            res.json({ message: 'Thought deleted' });
+          })
           .catch((err) => {
             console.error(err);
             res.status(500).json(err);
           });
       },
-
+      
     addReaction(req, res) {
         Thought.findByIdAndUpdate(
           req.params.thoughtId,
